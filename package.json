@@ -1,0 +1,18 @@
+{
+  "name": "courier-test-levels",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "order-service",
+    "tracking-service",
+    "frontend"
+  ],
+  "scripts": {
+    "test:unit":        "npm run test:unit        --workspaces --if-present",
+    "test:component":   "npm run test:component   --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspaces --if-present",
+    "test:api":         "npm run test:api         --workspaces --if-present",
+    "test:e2e":         "npm run test:e2e         --workspaces --if-present",
+    "test":             "npm run test:unit && npm run test:component && npm run test:integration && npm run test:api && npm run test:e2e"
+  }
+}

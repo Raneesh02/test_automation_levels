@@ -1,0 +1,35 @@
+services:
+  postgres_orders_test:
+    image: postgres:15-alpine
+    container_name: courier_orders_test_db
+    environment:
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_pass
+      POSTGRES_DB: orders_test_db
+    ports:
+      - "5434:5432"
+    tmpfs:
+      # use tmpfs for speed — test data does not need to survive container restart
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders_user -d orders_test_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres_tracking_test:
+    image: postgres:15-alpine
+    container_name: courier_tracking_test_db
+    environment:
+      POSTGRES_USER: tracking_user
+      POSTGRES_PASSWORD: tracking_pass
+      POSTGRES_DB: tracking_test_db
+    ports:
+      - "5435:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracking_user -d tracking_test_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

@@ -17,9 +17,10 @@ interface TrackingRecord {
 
 interface Props {
   orderId: string;
+  onBack: () => void;
 }
 
-export default function TrackingPage({ orderId }: Props) {
+export default function TrackingPage({ orderId, onBack }: Props) {
   const [records, setRecords] = useState<TrackingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +94,10 @@ export default function TrackingPage({ orderId }: Props) {
             ))}
           </ul>
         )}
+
+        <button className="btn btn-ghost" onClick={onBack} aria-label="Back to home" style={{ marginTop: "24px" }}>
+          ← Back to home
+        </button>
       </div>
     </div>
   );

@@ -4,10 +4,28 @@ import { http, HttpResponse } from "msw";
 export const handlers = [
   http.post("/api/orders", () =>
     HttpResponse.json(
-      { id: "order-abc-123", status: "PENDING", totalPrice: 12.5 },
+      { id: "order-abc-123", status: "PENDING", totalPrice: 12.5, courierId: null },
       { status: 201 }
     )
   ),
+
+  http.get("/api/orders", () =>
+    HttpResponse.json([
+      { id: "order-abc-123", status: "PENDING", priority: "standard", weightKg: 5, distanceKm: 10, totalPrice: 12.5, courierId: null },
+      { id: "order-def-456", status: "DELIVERED", priority: "express", weightKg: 2, distanceKm: 20, totalPrice: 46.5, courierId: "courier-001" },
+    ])
+  ),
+
+  http.patch("/api/orders/:id/courier", async ({ request, params }) => {
+    const body = await request.json() as { courierId: string };
+    return HttpResponse.json({
+      id: params.id,
+      status: "ASSIGNED",
+      totalPrice: 12.5,
+      courierId: body.courierId,
+    });
+  }),
+
   http.get("/api/tracking/:orderId", ({ params }) => {
     if (params.orderId === "unknown") {
       return HttpResponse.json({ error: "Not found" }, { status: 404 });

@@ -1,61 +1,5 @@
 # Courier Delivery Management System — Test Levels Learning Project
 
-## Commands
-
-### Infrastructure
-```bash
-make db.up            # start dev databases (orders:5432, tracking:5433)
-make db.down          # stop dev databases
-make db.test.up       # start test databases (orders:5434, tracking:5435) — tmpfs, fast
-make db.test.down     # stop test databases
-```
-
-### Run by test level
-```bash
-make unit             # unit tests only          — no infra, ~ms
-make component        # component tests only     — no infra, ~100ms
-make integration      # integration tests only   — auto-starts test DBs, ~seconds
-make api              # api tests only           — auto-starts test DBs, ~seconds
-make e2e              # e2e tests only           — auto-starts dev DBs, full browser
-make test             # all levels in trophy order
-```
-
-### From root (npm workspaces)
-```bash
-npm run test:unit
-npm run test:component
-npm run test:integration
-npm run test:api
-npm run test:e2e
-npm test              # all levels
-```
-
-### Single service
-```bash
-cd order-service && npm run test:unit
-cd order-service && npm run test:component
-cd order-service && npm run test:integration
-cd order-service && npm run test:api
-cd tracking-service && npm run test:unit
-cd frontend && npm run test:component
-cd frontend && npm run test:e2e
-```
-
-### Contract tests (Pact)
-```bash
-cd order-service && npm run test:pact       # consumer — generates pacts/order-service-tracking-service.json
-cd tracking-service && npm run test:pact    # provider — verifies tracking-service satisfies the pact
-```
-
-### Frontend
-```bash
-cd frontend && npm run dev                  # start dev server :5173
-cd frontend && npm run test:component       # Vitest component tests (React Testing Library + msw)
-cd frontend && npm run test:e2e             # Playwright E2E tests (requires dev server running)
-```
-
----
-
 ## Learning Goals
 
 Understand where each test level fits in the **testing trophy** model, what each level catches, and what it misses. Every test file will include comment blocks explaining this explicitly.
@@ -427,10 +371,10 @@ Build in this order so each phase is runnable and testable:
 | **Milestone 8 — E2E** | | |
 | 15 | Playwright E2E tests | ✅ Done |
 | **Milestone 9 — Frontend Enhancements** | | |
-| 16 | Back/home button on confirmation and tracking pages | ⬜ Not Started |
-| 17 | Assign courier to an order (UI + `PATCH /orders/:id/courier`) | ⬜ Not Started |
-| 18 | Live price estimate preview as user types (client-side calc) | ⬜ Not Started |
-| 19 | Order history page — list all past orders via `GET /orders` | ⬜ Not Started |
+| 16 | Back/home button on confirmation and tracking pages | ✅ Done |
+| 17 | Assign courier to an order (UI + `PATCH /orders/:id/courier`) | ✅ Done |
+| 18 | Live price estimate preview as user types (client-side calc) | ✅ Done |
+| 19 | Order history page — list all past orders via `GET /orders` | ✅ Done |
 
 **Status key:** ⬜ Not Started · 🔄 In Progress · ✅ Done
 
@@ -451,3 +395,59 @@ Build in this order so each phase is runnable and testable:
 | Invalid status transition | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
 
 **Read this table as:** each level can only reliably catch bugs at its layer. Testing everything at UI level does not substitute for lower levels — it just makes failures slower and harder to diagnose.
+
+---
+
+## Commands
+
+### Infrastructure
+```bash
+make db.up            # start dev databases (orders:5432, tracking:5433)
+make db.down          # stop dev databases
+make db.test.up       # start test databases (orders:5434, tracking:5435) — tmpfs, fast
+make db.test.down     # stop test databases
+```
+
+### Run by test level
+```bash
+make unit             # unit tests only          — no infra, ~ms
+make component        # component tests only     — no infra, ~100ms
+make integration      # integration tests only   — auto-starts test DBs, ~seconds
+make api              # api tests only           — auto-starts test DBs, ~seconds
+make e2e              # e2e tests only           — auto-starts dev DBs, full browser
+make test             # all levels in trophy order
+```
+
+### From root (npm workspaces)
+```bash
+npm run test:unit
+npm run test:component
+npm run test:integration
+npm run test:api
+npm run test:e2e
+npm test              # all levels
+```
+
+### Single service
+```bash
+cd order-service && npm run test:unit
+cd order-service && npm run test:component
+cd order-service && npm run test:integration
+cd order-service && npm run test:api
+cd tracking-service && npm run test:unit
+cd frontend && npm run test:component
+cd frontend && npm run test:e2e
+```
+
+### Contract tests (Pact)
+```bash
+cd order-service && npm run test:pact       # consumer — generates pacts/order-service-tracking-service.json
+cd tracking-service && npm run test:pact    # provider — verifies tracking-service satisfies the pact
+```
+
+### Frontend
+```bash
+cd frontend && npm run dev                  # start dev server :5173
+cd frontend && npm run test:component       # Vitest component tests (React Testing Library + msw)
+cd frontend && npm run test:e2e             # Playwright E2E tests (requires dev server running)
+```

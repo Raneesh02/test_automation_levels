@@ -3,6 +3,7 @@
 // - Submit disabled when required fields empty
 // - Validation errors shown inline (no network call needed)
 // - Correct HTTP payload sent on submit
+// - Live price estimate shown as user types (client-side, no API call)
 //
 // What it misses: real API responses, navigation after submit, browser-specific rendering.
 // API is mocked with msw — we're testing the component, not the network.
@@ -13,6 +14,27 @@ export interface Order {
   id: string;
   status: string;
   totalPrice: number;
+  courierId?: string | null;
+}
+
+type Priority = "standard" | "express" | "overnight";
+
+const RATE_PER_KM = 2.0;
+const RATE_PER_KG = 0.5;
+const OVERSIZE_THRESHOLD_KG = 20;
+const OVERSIZE_SURCHARGE_RATE = 0.15;
+const PRIORITY_MULTIPLIERS: Record<Priority, number> = {
+  standard: 1.0,
+  express: 1.5,
+  overnight: 2.0,
+};
+
+function estimatePrice(weightKg: number, distanceKm: number, priority: Priority): number {
+  const baseRate = distanceKm * RATE_PER_KM;
+  const weightSurcharge = weightKg * RATE_PER_KG;
+  const subtotal = baseRate + weightSurcharge;
+  const oversizeSurcharge = weightKg > OVERSIZE_THRESHOLD_KG ? subtotal * OVERSIZE_SURCHARGE_RATE : 0;
+  return Math.round((subtotal + oversizeSurcharge) * PRIORITY_MULTIPLIERS[priority] * 100) / 100;
 }
 
 interface Props {
@@ -22,11 +44,14 @@ interface Props {
 export default function BookDelivery({ onOrderCreated }: Props) {
   const [weightKg, setWeightKg] = useState("");
   const [distanceKm, setDistanceKm] = useState("");
-  const [priority, setPriority] = useState("standard");
+  const [priority, setPriority] = useState<Priority>("standard");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const isEmpty = !weightKg || !distanceKm;
+  const w = Number(weightKg);
+  const d = Number(distanceKm);
+  const estimate = w > 0 && d > 0 ? estimatePrice(w, d, priority) : null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -107,7 +132,7 @@ export default function BookDelivery({ onOrderCreated }: Props) {
             <select
               aria-label="Priority"
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
+              onChange={(e) => setPriority(e.target.value as Priority)}
             >
               <option value="standard">Standard</option>
               <option value="express">Express</option>
@@ -115,6 +140,13 @@ export default function BookDelivery({ onOrderCreated }: Props) {
             </select>
           </div>
         </div>
+
+        {estimate !== null && (
+          <div className="price-estimate" data-testid="price-estimate">
+            <span className="estimate-label">Estimated price</span>
+            <span className="estimate-value" data-testid="estimate-value">₹{estimate.toFixed(2)}</span>
+          </div>
+        )}
 
         {error && (
           <div className="alert alert-error">

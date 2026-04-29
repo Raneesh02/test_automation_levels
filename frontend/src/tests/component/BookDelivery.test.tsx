@@ -5,6 +5,7 @@
 //   - Submit button disabled when required fields are empty
 //   - Inline validation error shown before any network call
 //   - Correct JSON payload sent to POST /api/orders
+//   - Live price estimate shown as user types weight + distance
 //
 // What it misses: page navigation after submit, real API latency, browser autofill behaviour.
 //
@@ -43,6 +44,17 @@ describe("BookDelivery", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Weight must be greater than 0");
   });
 
+  it("shows price estimate when weight and distance are filled", async () => {
+    const user = userEvent.setup();
+    render(<BookDelivery onOrderCreated={vi.fn()} />);
+
+    await user.type(screen.getByLabelText("Weight (kg)"), "5");
+    await user.type(screen.getByLabelText("Distance (km)"), "10");
+
+    // 5kg * 0.5 + 10km * 2.0 = 2.5 + 20 = 22.5 * 1.0 (standard) = 22.50
+    expect(screen.getByTestId("estimate-value")).toHaveTextContent("₹22.50");
+  });
+
   it("calls POST /api/orders with correct payload and invokes onOrderCreated", async () => {
     const user = userEvent.setup();
     let capturedBody: unknown;
@@ -51,7 +63,7 @@ describe("BookDelivery", () => {
       http.post("/api/orders", async ({ request }) => {
         capturedBody = await request.json();
         return HttpResponse.json(
-          { id: "order-abc-123", status: "PENDING", totalPrice: 12.5 },
+          { id: "order-abc-123", status: "PENDING", totalPrice: 12.5, courierId: null },
           { status: 201 }
         );
       })
@@ -71,6 +83,7 @@ describe("BookDelivery", () => {
       id: "order-abc-123",
       status: "PENDING",
       totalPrice: 12.5,
+      courierId: null,
     });
   });
 });
